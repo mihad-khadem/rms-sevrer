@@ -131,7 +131,7 @@ async function run() {
       res.send(result);
     });
 
-    // menu related apis
+    //! menu related apis
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
       res.send(result);
@@ -142,14 +142,45 @@ async function run() {
       const result = await menuCollection.insertOne(item);
       res.send(result);
     });
-    // Review data
+    //get the item to update menu item
+    app.get("/menu/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await menuCollection.findOne(query);
+      res.send(result);
+    });
+    // update the item
+    app.patch("/menu/:id", verifyToken, verifyAdmin, async (req, res) => {
+      const item = req.body;
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const upDoc = {
+        $set: {
+          name: item.name,
+          category: item.category,
+          price: item.price,
+          recipe: item.recipe,
+          image: item.image,
+        },
+      };
+      const result = await menuCollection.updateOne(filter, upDoc);
+      res.send(result);
+    });
+    // Delete menu item
+    app.delete("/menu/:id", verifyToken, verifyAdmin, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await menuCollection.deleteOne(query);
+      res.send(result);
+    });
+    //! Review data
     app.get("/reviews", async (req, res) => {
       const result = await reviewCollection.find().toArray();
       res.send(result);
     });
 
     // carts collection
-    //* All cart items
+    //! All cart items
     app.get("/carts", async (req, res) => {
       const email = req.query.email;
       const query = { email: email };
